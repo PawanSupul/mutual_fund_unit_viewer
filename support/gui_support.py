@@ -2,8 +2,9 @@ import tkinter as tk
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
-from data_prepare import get_final_date, get_price_data_from_json, get_fund_names, extract_fund_prices
-from data_prepare import check_sync_requirement, update_price_json
+from support.data_prepare import get_final_date, get_price_data_from_json, get_fund_names, extract_fund_prices
+from support.data_prepare import check_sync_requirement, update_price_json
+import threading
 
 class prepareGUI(tk.Frame):
     def __init__(self, master):
@@ -17,7 +18,7 @@ class prepareGUI(tk.Frame):
 
 
     def instantiate_variables(self):
-        self.data_dict = get_price_data_from_json()
+        self.data_dict = get_price_data_from_json(self, gui=True)
         self.current_date = get_final_date(self.data_dict)
         self.fund_names = get_fund_names(self.data_dict)
         self.sync_required = check_sync_requirement(self.current_date)
@@ -71,21 +72,23 @@ class prepareGUI(tk.Frame):
         self.dropdwn_list.configure(width=100, anchor='w', justify='left')
         self.dropdwn_list.pack(side=tk.LEFT)
 
-        self.lbl_date_meta = tk.Label(master=self.frame12, text='Date: ')
+        self.lbl_date_meta = tk.Label(master=self.frame12, text='Last database update: ')
         self.lbl_date_meta.pack(side=tk.LEFT)
         self.lbl_date = tk.Label(master=self.frame12, text=self.current_date, width=10)
         self.lbl_date.pack(side=tk.LEFT)
 
-        self.btn_sync = tk.Button(master=self.frame13, text='Sync', width =20, command=self.handle_sync)
+        # self.btn_sync = tk.Button(master=self.frame13, text='Sync', width=20, command=self.handle_sync)
+        self.btn_sync = tk.Button(master=self.frame13, text='Sync', width=20, command=lambda: threading.Thread(target=self.handle_sync).start())
         self.btn_sync.pack(side=tk.TOP)
 
-        self.lbl_status = tk.Label(master=self.frame3, text='')
+        self.lbl_status = tk.Label(master=self.frame3, text='', anchor='w', justify='left')
         self.lbl_status.pack(side=tk.LEFT, fill=tk.X, expand=True)
 
         self.update_buttons()
 
 
     def handle_optionmenu(self, event):
+        self.data_dict = get_price_data_from_json(self, gui=True)
         self.price_array = extract_fund_prices(self.data_dict, event)
         self.update_figure()
 
@@ -116,6 +119,6 @@ class prepareGUI(tk.Frame):
             self.lbl_status['text'] = 'Database upto date!'
 
 
-    def handle_sync(self, event):
+    def handle_sync(self):
         update_price_json(self)
         self.lbl_status['text'] = 'Database upto date!'

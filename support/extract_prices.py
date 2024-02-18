@@ -9,6 +9,8 @@ retry_count = 0
 retry_limit = 3
 unresponsive_dates = []
 errorneous_dates = []
+dynamic_file_directory_path = 'dynamic/'
+
 
 def daterange(start_date, end_date):
     for n in range(int((end_date - start_date).days)):
@@ -33,7 +35,7 @@ def scrape_date_url(url):
             retry_count += 1
             scrape_date_url(url)
         else:
-            print(f'Response : {response.status_code} for date : {url.split("=")[-1]}  ==================================================')
+            print(f'Warning! Response : {response.status_code} for url : {url}')
             unresponsive_dates.append(url)
         table_data = []
         web_date = '1970-01-01'
@@ -54,7 +56,7 @@ def scrape_date_url(url):
                         web_date_list = web_date_string.split('/')
                         web_date = f'{web_date_list[2].strip()}-{web_date_list[0].strip()}-{web_date_list[1].strip()}'
                 elif(len(row_data) != 3):
-                    print(f'Unpredicted data read: {row_data}')
+                    print(f'Error! Unpredicted data format encountered: {row_data}')
                 else:
                     table_data.append(row_data)
     return table_data, web_date
@@ -84,10 +86,9 @@ def concat_dict_data(previous_data, data_array, webdate):
             date_dict[data_array[i, 0]] = fund_dict
         except:
             errorneous_dates.append(webdate)
-            print(f'Conversion error on date: {webdate} - Ex: {data_array[i, 1]} | Added to the Erroneous dates file. =============================')
+            print(f'Warning! Conversion error on date: {webdate} - Ex: {data_array[i, 1]} | Added to the Erroneous dates file and excluded from database.')
             continue
-        # fund_dict = {webdate: [float(data_array[i, 1]), float(data_array[i, 2])]}
-        # date_dict[data_array[i, 0]] = fund_dict
+
     for key in date_dict:
         if(key in previous_data.keys()):
             curr_date = list(date_dict[key].keys())[0]
@@ -103,6 +104,8 @@ def extract_price_data(date_list, previous_data, self=None, gui=False):
     for c, date_string in enumerate(date_list):
         if(gui):
             self.lbl_status['text'] = f'Now syncing date = {date_string} : {c + 1}/{len(date_list)}'
+            self.lbl_date['text'] = date_string
+            self.master.update()
         else:
             print(f'Now processing date = {date_string} : {c + 1}/{len(date_list)}')
         [year, month, day] = date_string.split('-')
@@ -116,13 +119,13 @@ def extract_price_data(date_list, previous_data, self=None, gui=False):
     return previous_data
 
 def save_json(data_dict):
-    with open('historical_prices.json', 'w') as fid:
+    with open(dynamic_file_directory_path + 'historical_prices.json', 'w') as fid:
         json.dump(data_dict, fid)
-    print(f'>>> Data json saved')
+    # print(f'>>> Data json saved')
 
 def save_unresponsive(overwrite = False):
     global unresponsive_dates
-    filepath = 'unresponsive.txt'
+    filepath = dynamic_file_directory_path + 'unresponsive.txt'
     if os.path.exists(filepath):
         if(overwrite):
             with open(filepath, 'w') as fid:
@@ -133,12 +136,11 @@ def save_unresponsive(overwrite = False):
     else:
         with open(filepath, 'w') as fid:
             fid.writelines(s + '\n' for s in unresponsive_dates)
-    print(f'>>> Unresponsive files saved')
+    # print(f'>>> Unresponsive files saved')
 
-## make the wronge dates save function
 def save_wrong_dates(overwrite = False):
     global errorneous_dates
-    filepath = 'wrong_dates.txt'
+    filepath = dynamic_file_directory_path + 'wrong_dates.txt'
     if os.path.exists(filepath):
         if(overwrite):
             with open(filepath, 'w') as fid:
@@ -149,11 +151,11 @@ def save_wrong_dates(overwrite = False):
     else:
         with open(filepath, 'w') as fid:
             fid.writelines(s + '\n' for s in errorneous_dates)
-    print(f'>>> Erroneous dates files saved')
+    # print(f'>>> Erroneous dates files saved')
 
 
 def read_json():
-    filepath = 'historical_prices.json'
+    filepath = dynamic_file_directory_path + 'historical_prices.json'
     if not os.path.exists(filepath):
         data_dict = {}
     else:
@@ -176,7 +178,7 @@ def get_previous_data(start_date):
 
 def main():
     start_date = '2015-03-16'
-    end_date = '2020-12-30'
+    end_date = '2021-12-30'
     previous_data, start_date = get_previous_data(start_date)
     date_list = extract_dates_from_date_range(start_date, end_date)
     appended_data = extract_price_data(date_list, previous_data)

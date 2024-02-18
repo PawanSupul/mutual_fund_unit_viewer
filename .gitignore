@@ -5,3 +5,5 @@ __pycache__/*
 *.txt
 # backup files and folders
 backup/*
+# Files for manual execution
+manual_database_update.py
