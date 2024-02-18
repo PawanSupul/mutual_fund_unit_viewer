@@ -1,5 +1,7 @@
 import tkinter as tk
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2Tk
 from support.data_prepare import get_final_date, get_price_data_from_json, get_fund_names, extract_fund_prices
