@@ -1,8 +1,7 @@
 # IDE related files and folders
 .idea/*
 __pycache__/*
-# Text files
-*.txt
+*.pyc
 # backup files and folders
 backup/*
 # Files for manual execution

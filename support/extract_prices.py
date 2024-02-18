@@ -118,14 +118,16 @@ def extract_price_data(date_list, previous_data, self=None, gui=False):
         previous_data = concat_dict_data(previous_data, data_array, date_string)
     return previous_data
 
+
 def save_json(data_dict):
     with open(dynamic_file_directory_path + 'historical_prices.json', 'w') as fid:
         json.dump(data_dict, fid)
     # print(f'>>> Data json saved')
 
+
 def save_unresponsive(overwrite = False):
     global unresponsive_dates
-    filepath = dynamic_file_directory_path + 'unresponsive.txt'
+    filepath = dynamic_file_directory_path + 'debug_unresponsive.txt'
     if os.path.exists(filepath):
         if(overwrite):
             with open(filepath, 'w') as fid:
@@ -138,9 +140,10 @@ def save_unresponsive(overwrite = False):
             fid.writelines(s + '\n' for s in unresponsive_dates)
     # print(f'>>> Unresponsive files saved')
 
+
 def save_wrong_dates(overwrite = False):
     global errorneous_dates
-    filepath = dynamic_file_directory_path + 'wrong_dates.txt'
+    filepath = dynamic_file_directory_path + 'debug_wrong_dates.txt'
     if os.path.exists(filepath):
         if(overwrite):
             with open(filepath, 'w') as fid:
@@ -163,6 +166,7 @@ def read_json():
             data_dict = json.load(fid)
     return data_dict
 
+
 def get_previous_data(start_date):
     data_dict = read_json()
     most_recent = '2015-01-01'
@@ -176,9 +180,10 @@ def get_previous_data(start_date):
         start_date = most_recent
     return data_dict, start_date
 
+
 def main():
     start_date = '2015-03-16'
-    end_date = '2021-12-30'
+    end_date = '2022-12-31'
     previous_data, start_date = get_previous_data(start_date)
     date_list = extract_dates_from_date_range(start_date, end_date)
     appended_data = extract_price_data(date_list, previous_data)
@@ -186,9 +191,11 @@ def main():
     save_unresponsive()
     save_wrong_dates()
 
+
 def test():
     jsondata = read_json()
     b = 9
+
 
 if __name__ == '__main__':
     main()
