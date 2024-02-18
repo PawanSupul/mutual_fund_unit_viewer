@@ -1,0 +1,7 @@
+# IDE related files and folders
+.idea/*
+__pycache__/*
+# Text files
+*.txt
+# backup files and folders
+backup/*
