@@ -183,7 +183,7 @@ def get_previous_data(start_date):
 
 def main():
     start_date = '2015-03-16'
-    end_date = '2022-12-31'
+    end_date = '2024-02-01'
     previous_data, start_date = get_previous_data(start_date)
     date_list = extract_dates_from_date_range(start_date, end_date)
     appended_data = extract_price_data(date_list, previous_data)
